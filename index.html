@@ -45,8 +45,12 @@ h1{font-size:clamp(32px,5vw,52px);color:light-dark(#074240,#ffffff);text-wrap:ba
 .tile h3{font-size:22px;font-weight:600}
 .tile svg{width:46px;height:20px}
 .tile .go{font-size:14px;font-weight:700}
-.hint{font-size:14px;color:var(--muted);margin:0}
-@media(min-width:900px){.deck{overflow:visible;justify-content:space-between;padding-top:34px}.tile{flex:1 1 0;margin-left:-18px;transform:rotate(var(--r))}.tile:first-child{margin-left:0}.tile:hover,.tile:focus-visible{z-index:2}.hint{display:none}}
+.dots{display:flex;gap:6px;justify-content:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:width .25s,background .25s}
+.dots i.on{width:22px;border-radius:4px;background:var(--coral)}
+@media(max-width:899px){.deck{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent);padding-right:40px}.tile{flex-basis:clamp(140px,38vw,170px)}}
+@media(prefers-reduced-motion:no-preference) and (max-width:899px){.deck{animation:peek 1.4s 1s ease-in-out}@keyframes peek{40%{transform:translateX(-36px)}}}
+@media(min-width:900px){.deck{overflow:visible;justify-content:space-between;padding-top:34px}.tile{flex:1 1 0;margin-left:-18px;transform:rotate(var(--r))}.tile:first-child{margin-left:0}.tile:hover,.tile:focus-visible{z-index:2}.dots{display:none}}
 .list{display:grid;gap:12px}
 .list>h2{font-size:clamp(26px,3.4vw,36px);margin-bottom:6px}
 .c{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--k);border-radius:16px;overflow:hidden;transition:box-shadow .25s}
@@ -67,10 +71,6 @@ h1{font-size:clamp(32px,5vw,52px);color:light-dark(#074240,#ffffff);text-wrap:ba
 .in li{margin:3px 0}
 .take{background:color-mix(in srgb,var(--k) 16%,transparent);border-radius:12px;padding:12px 14px;align-self:start}
 .take p{margin:0;font-weight:600}
-.ctrl{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:4px}
-.ctrl h2{font-size:clamp(26px,3.4vw,36px)}
-.ctrl button{border:2px solid var(--g);background:transparent;border-radius:24px;padding:8px 16px;cursor:pointer;font-weight:700;min-height:44px}
-:root[data-theme=dark] .ctrl button{border-color:#5c9a5f}
 .end{background:var(--g);color:#fff}
 .end .wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .end h3{font-size:20px;margin-bottom:4px;font-weight:600}
@@ -99,14 +99,14 @@ h1{font-size:clamp(32px,5vw,52px);color:light-dark(#074240,#ffffff);text-wrap:ba
     <div class="pick">
       <h2>Scegli cosa ti incuriosisce</h2>
       <div class="deck" id="deck"></div>
-      <p class="hint">Scorri le schede e tocca quella che ti interessa</p>
+      <div class="dots" id="dots" aria-hidden="true"></div>
     </div>
   </div>
 </header>
 
 <main class="band" style="padding-top:8px">
   <div class="wrap list" id="list">
-    <div class="ctrl"><h2>I corsi</h2><button id="all" type="button" aria-pressed="false">Apri tutti</button></div>
+    <h2>I corsi</h2>
   </div>
 </main>
 
@@ -142,8 +142,10 @@ document.getElementById("deck").addEventListener("click",e=>{
  const el=cards[+b.dataset.i];setOpen(el,true);el.scrollIntoView({block:"start"});
  el.classList.add("hl");setTimeout(()=>el.classList.remove("hl"),1400);
 });
-const all=document.getElementById("all");
-all.addEventListener("click",()=>{const v=all.getAttribute("aria-pressed")!=="true";cards.forEach(el=>setOpen(el,v));all.setAttribute("aria-pressed",v);all.textContent=v?"Chiudi tutti":"Apri tutti"});
+const deck=document.getElementById("deck"),dots=document.getElementById("dots");
+dots.innerHTML=courses.map(()=>'<i></i>').join("");
+const dot=()=>{const t=[...deck.children],w=t[0].offsetWidth+14,i=Math.min(t.length-1,Math.round(deck.scrollLeft/w));[...dots.children].forEach((d,j)=>d.classList.toggle("on",j===i))};
+deck.addEventListener("scroll",dot,{passive:true});dot();
 }
 </script>
 </body>
